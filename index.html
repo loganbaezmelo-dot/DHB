@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Human Brain v0.1</title>
+<style>
+  :root {
+    --bg: #090b10;
+    --panel: #111622;
+    --border: #1e2638;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --accent: #38bdf8;
+    --dopamine: #f59e0b;
+    --serotonin: #10b981;
+    --cortisol: #ef4444;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+    user-select: none;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .status {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    gap: 16px;
+    flex: 1;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .panel-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* Neurochemical meters */
+  .meter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+  }
+
+  .bar-container {
+    height: 8px;
+    background: #1a2233;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    width: 50%;
+    border-radius: 4px;
+    transition: width 0.25s ease;
+  }
+
+  .dopamine-bar { background: var(--dopamine); }
+  .serotonin-bar { background: var(--serotonin); }
+  .cortisol-bar { background: var(--cortisol); }
+
+  /* Stimuli buttons */
+  .stimuli-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  button {
+    background: #1a2233;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  button:hover {
+    background: #242f47;
+    border-color: #3b82f6;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  /* Neural Cortex Grid (No canvas) */
+  .cortex {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background: #0d121c;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    position: relative;
+    place-items: center;
+  }
+
+  .neuron {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #172033;
+    border: 2px solid #23314d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    transition: background 0.08s, box-shadow 0.08s, transform 0.08s;
+  }
+
+  .neuron:hover {
+    border-color: var(--accent);
+  }
+
+  /* Neuron Firing States */
+  .neuron.firing {
+    background: #fff;
+    border-color: #38bdf8;
+    box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8;
+    transform: scale(1.15);
+    color: #000;
+    font-weight: bold;
+  }
+
+  .neuron.refractory {
+    opacity: 0.35;
+    background: #0b0f17;
+  }
+
+  /* Working Memory Console */
+  .stream {
+    flex: 1;
+    overflow-y: auto;
+    background: #0d121c;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .log-line {
+    word-break: break-all;
+    line-height: 1.4;
+  }
+  .log-fire { color: #38bdf8; }
+  .log-chem { color: #f59e0b; }
+  .log-hebb { color: #10b981; }
+  .log-stress { color: #ef4444; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Digital Human Brain <span style="color: var(--accent);">v0.1</span></h1>
+  <div class="status" id="brain-state">STATE: HOMEOSTASIS (AWAKE)</div>
+</header>
+
+<div class="main-layout">
+  <!-- Chem Panel -->
+  <div class="panel">
+    <div class="panel-title">Neurotransmitters</div>
+    <div class="meter-group">
+      <div>
+        <div class="meter-label">
+          <span>Dopamine (Drive)</span>
+          <span id="dopamine-val">50%</span>
+        </div>
+        <div class="bar-container"><div id="dopamine-bar" class="bar-fill dopamine-bar"></div></div>
+      </div>
+
+      <div>
+        <div class="meter-label">
+          <span>Serotonin (Mood)</span>
+          <span id="serotonin-val">50%</span>
+        </div>
+        <div class="bar-container"><div id="serotonin-bar" class="bar-fill serotonin-bar"></div></div>
+      </div>
+
+      <div>
+        <div class="meter-label">
+          <span>Cortisol (Stress)</span>
+          <span id="cortisol-val">15%</span>
+        </div>
+        <div class="bar-container"><div id="cortisol-bar" class="bar-fill cortisol-bar" style="width: 15%;"></div></div>
+      </div>
+    </div>
+
+    <div class="panel-title" style="margin-top: 10px;">Sensory Inputs</div>
+    <div class="stimuli-grid">
+      <button onclick="injectStimulus('caffeine')">☕ Caffeine</button>
+      <button onclick="injectStimulus('reward')">🏆 Reward</button>
+      <button onclick="injectStimulus('stress')">⚠️ Threat</button>
+      <button onclick="injectStimulus('meditate')">🧘 Rest</button>
+    </div>
+
+    <div style="font-size: 0.75rem; color: var(--muted); margin-top: auto; line-height: 1.4;">
+      Tip: Click any neuron node on the grid to fire manual action potentials and watch Hebbian plasticity spread.
+    </div>
+  </div>
+
+  <!-- Neural Cortex (Pure CSS Grid) -->
+  <div class="cortex" id="cortex"></div>
+
+  <!-- Working Memory Stream -->
+  <div class="panel">
+    <div class="panel-title">Synaptic Log / Stream</div>
+    <div class="stream" id="log-box"></div>
+  </div>
+</div>
+
+<script>
+  // Neurochemical States
+  const brain = {
+    dopamine: 50,
+    serotonin: 50,
+    cortisol: 15,
+    plasticityIndex: 1.0,
+    spontaneousThreshold: 0.985
+  };
+
+  const NUM_NEURONS = 36;
+  const neurons = [];
+  const cortexEl = document.getElementById('cortex');
+  const logBox = document.getElementById('log-box');
+
+  // Spawn biological node network
+  for (let i = 0; i < NUM_NEURONS; i++) {
+    const el = document.createElement('div');
+    el.className = 'neuron';
+    el.id = `neuron-${i}`;
+    el.innerText = `N${i}`;
+    el.onclick = () => fireNeuron(i, true);
+    cortexEl.appendChild(el);
+
+    neurons.push({
+      id: i,
+      el: el,
+      membranePotential: 0,
+      refractory: false,
+      // Synaptic weights to 3 neighbor neurons
+      synapses: [
+        { target: (i + 1) % NUM_NEURONS, weight: 0.35 + Math.random() * 0.2 },
+        { target: (i + 6) % NUM_NEURONS, weight: 0.35 + Math.random() * 0.2 },
+        { target: (i + NUM_NEURONS - 1) % NUM_NEURONS, weight: 0.2 + Math.random() * 0.2 }
+      ]
+    });
+  }
+
+  function log(msg, type = '') {
+    const entry = document.createElement('div');
+    entry.className = `log-line log-${type}`;
+    const timestamp = new Date().toISOString().substring(17, 23);
+    entry.innerText = `[${timestamp}] ${msg}`;
+    logBox.prepend(entry);
+    if (logBox.children.length > 50) {
+      logBox.removeChild(logBox.lastChild);
+    }
+  }
+
+  function fireNeuron(id, manual = false) {
+    const n = neurons[id];
+    if (n.refractory) return;
+
+    n.refractory = true;
+    n.el.classList.add('firing');
+
+    if (manual) log(`Neuron N${id} fired manually (Action Potential)`, 'fire');
+
+    // Neuroplasticity: Dopamine strengthens synaptic weights
+    const learningRate = 0.05 * (brain.dopamine / 50);
+
+    n.synapses.forEach(syn => {
+      // Propagate downstream
+      setTimeout(() => {
+        const targetNeuron = neurons[syn.target];
+        if (!targetNeuron.refractory) {
+          targetNeuron.membranePotential += syn.weight * (brain.cortisol > 60 ? 1.4 : 1.0);
+
+          // Threshold reached
+          if (targetNeuron.membranePotential >= 0.7) {
+            targetNeuron.membranePotential = 0;
+            // Hebbian learning: connections get stronger if they trigger downstream firing
+            syn.weight = Math.min(0.95, syn.weight + learningRate);
+            log(`Hebbian link reinforced: N${id} -> N${syn.target} (w: ${syn.weight.toFixed(2)})`, 'hebb');
+            fireNeuron(syn.target);
+          }
+        }
+      }, 70);
+    });
+
+    // Refractory period recovery
+    setTimeout(() => {
+      n.el.classList.remove('firing');
+      n.el.classList.add('refractory');
+      setTimeout(() => {
+        n.refractory = false;
+        n.el.classList.remove('refractory');
+      }, 180);
+    }, 120);
+  }
+
+  // Sensory input triggers
+  window.injectStimulus = function(type) {
+    if (type === 'caffeine') {
+      brain.dopamine = Math.min(100, brain.dopamine + 20);
+      brain.cortisol = Math.min(100, brain.cortisol + 10);
+      log('Stimulus: Caffeine spike (+Dopamine, +Cortisol)', 'chem');
+      // Fire 3 random sensory neurons
+      for (let k = 0; k < 3; k++) fireNeuron(Math.floor(Math.random() * NUM_NEURONS));
+    } else if (type === 'reward') {
+      brain.dopamine = Math.min(100, brain.dopamine + 35);
+      brain.serotonin = Math.min(100, brain.serotonin + 20);
+      brain.cortisol = Math.max(0, brain.cortisol - 15);
+      log('Stimulus: Reward mechanism activated (+Dopamine)', 'hebb');
+    } else if (type === 'stress') {
+      brain.cortisol = Math.min(100, brain.cortisol + 35);
+      brain.serotonin = Math.max(0, brain.serotonin - 20);
+      log('Stimulus: Threat detected! High cortisol spike', 'stress');
+      // High cortisol causes chaotic cluster firings
+      for (let k = 0; k < 5; k++) fireNeuron(Math.floor(Math.random() * NUM_NEURONS));
+    } else if (type === 'meditate') {
+      brain.cortisol = Math.max(5, brain.cortisol - 25);
+      brain.serotonin = Math.min(100, brain.serotonin + 15);
+      brain.dopamine = Math.max(20, brain.dopamine - 10);
+      log('Stimulus: Deep rest state induced (-Cortisol)', 'chem');
+    }
+    updateMeters();
+  };
+
+  function updateMeters() {
+    document.getElementById('dopamine-val').innerText = `${Math.round(brain.dopamine)}%`;
+    document.getElementById('dopamine-bar').style.width = `${brain.dopamine}%`;
+
+    document.getElementById('serotonin-val').innerText = `${Math.round(brain.serotonin)}%`;
+    document.getElementById('serotonin-bar').style.width = `${brain.serotonin}%`;
+
+    document.getElementById('cortisol-val').innerText = `${Math.round(brain.cortisol)}%`;
+    document.getElementById('cortisol-bar').style.width = `${brain.cortisol}%`;
+
+    const stateEl = document.getElementById('brain-state');
+    if (brain.cortisol > 70) {
+      stateEl.innerText = 'STATE: PANIC / OVERCLOCKED FIGHT-OR-FLIGHT';
+      stateEl.style.color = 'var(--cortisol)';
+    } else if (brain.dopamine > 75) {
+      stateEl.innerText = 'STATE: HYPER-FOCUSED (FLOW STATE)';
+      stateEl.style.color = 'var(--dopamine)';
+    } else if (brain.serotonin > 70) {
+      stateEl.innerText = 'STATE: CONTENT & STABLE';
+      stateEl.style.color = 'var(--serotonin)';
+    } else {
+      stateEl.innerText = 'STATE: HOMEOSTASIS (AWAKE)';
+      stateEl.style.color = 'var(--muted)';
+    }
+  }
+
+  // Autonomous brain rhythm (Spontaneous firings + Homeostatic decay)
+  setInterval(() => {
+    // Spontaneous thought generation based on dopamine & stress
+    const triggerChance = (brain.dopamine + brain.cortisol) / 200;
+    if (Math.random() < triggerChance * 0.4) {
+      const randomNeuron = Math.floor(Math.random() * NUM_NEURONS);
+      fireNeuron(randomNeuron);
+    }
+
+    // Natural homeostatic return to baseline (50% dopamine/serotonin, 15% cortisol)
+    brain.dopamine += (50 - brain.dopamine) * 0.02;
+    brain.serotonin += (50 - brain.serotonin) * 0.02;
+    brain.cortisol += (15 - brain.cortisol) * 0.03;
+    updateMeters();
+  }, 400);
+
+  updateMeters();
+  log('Neural circuit initialized. Homeostasis stable.');
+</script>
+
+</body>
+</html>
