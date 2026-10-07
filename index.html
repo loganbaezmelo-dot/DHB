@@ -3,21 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Biophysical Neural Cortex v0.3</title>
+<title>Digital Human Brain v0.3</title>
 <style>
   :root {
-    --bg: #07090e;
-    --panel: #0f141f;
-    --border: #1a2233;
+    --bg: #090b10;
+    --panel: #111622;
+    --border: #1e2638;
     --text: #e2e8f0;
     --muted: #64748b;
-    --excitatory: #38bdf8;
-    --inhibitory: #f43f5e;
-    --firing: #ffffff;
-    --pfc: #818cf8;
-    --visual: #34d399;
-    --limbic: #fbbf24;
-    --motor: #f472b6;
+    --accent: #38bdf8;
+    --dopamine: #f59e0b;
+    --serotonin: #10b981;
+    --cortisol: #ef4444;
+    --adenosine: #a855f7;
   }
 
   * {
@@ -35,14 +33,14 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 12px;
-    gap: 12px;
+    padding: 14px;
+    gap: 14px;
   }
 
   header {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     border-bottom: 1px solid var(--border);
     padding-bottom: 10px;
   }
@@ -56,27 +54,27 @@
   }
 
   h1 {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1.15rem;
+    font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
   .status-cluster {
     display: flex;
-    gap: 10px;
-    font-size: 0.72rem;
+    gap: 12px;
+    font-size: 0.75rem;
   }
 
   .status {
     color: var(--muted);
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .main-layout {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     flex: 1;
     width: 100%;
   }
@@ -92,83 +90,64 @@
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 12px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
   }
 
   .panel-title {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--muted);
     letter-spacing: 0.08em;
   }
 
-  .region-legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    font-size: 0.7rem;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-
   .meter-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
 
   .meter-label {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
-    margin-bottom: 2px;
+    font-size: 0.8rem;
+    margin-bottom: 4px;
   }
 
   .bar-container {
-    height: 6px;
-    background: #141b29;
-    border-radius: 3px;
+    height: 8px;
+    background: #1a2233;
+    border-radius: 4px;
     overflow: hidden;
   }
 
   .bar-fill {
     height: 100%;
     width: 50%;
-    border-radius: 3px;
-    transition: width 0.2s ease;
+    border-radius: 4px;
+    transition: width 0.25s ease;
   }
 
-  .gaba-bar { background: var(--inhibitory); }
-  .glu-bar { background: var(--excitatory); }
-  .dopa-bar { background: #f59e0b; }
-  .ade-bar { background: #a855f7; }
+  .dopamine-bar { background: var(--dopamine); }
+  .serotonin-bar { background: var(--serotonin); }
+  .cortisol-bar { background: var(--cortisol); }
+  .adenosine-bar { background: var(--adenosine); }
 
   .stimuli-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 8px;
   }
 
   button {
-    background: #151d2c;
+    background: #1a2233;
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px;
-    font-size: 0.75rem;
+    padding: 9px;
+    font-size: 0.8rem;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
@@ -177,8 +156,8 @@
   }
 
   button:hover {
-    background: #1f2b40;
-    border-color: var(--excitatory);
+    background: #242f47;
+    border-color: #3b82f6;
   }
 
   button:active {
@@ -189,71 +168,75 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(6, 1fr);
-    gap: 6px;
-    padding: 10px;
-    background: #090d15;
+    gap: 8px;
+    padding: 12px;
+    background: #0d121c;
     border: 1px solid var(--border);
     border-radius: 8px;
     place-items: center;
     width: 100%;
     aspect-ratio: 1 / 1;
-    max-width: 480px;
+    max-width: 520px;
     margin: 0 auto;
   }
 
   .neuron {
-    width: clamp(34px, 10vw, 46px);
-    height: clamp(34px, 10vw, 46px);
+    width: clamp(34px, 10vw, 48px);
+    height: clamp(34px, 10vw, 48px);
     border-radius: 50%;
-    background: #101624;
-    border: 2px solid #1c273c;
+    background: #172033;
+    border: 2px solid #23314d;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     color: var(--muted);
-    transition: background 0.05s, box-shadow 0.05s, transform 0.05s, border-color 0.05s;
-    position: relative;
+    transition: background 0.08s, box-shadow 0.08s, transform 0.08s, border-color 0.15s;
   }
 
-  .neuron.inhibitory-type {
-    border-style: dashed;
-  }
-
-  .neuron .mv-readout {
-    font-size: 0.5rem;
-    opacity: 0.8;
+  .neuron:hover {
+    border-color: var(--accent);
   }
 
   .neuron.firing {
-    background: #ffffff !important;
-    border-color: #ffffff !important;
-    box-shadow: 0 0 16px rgba(255,255,255,0.9), 0 0 28px currentColor;
-    transform: scale(1.15);
-    color: #000 !important;
+    background: #fff;
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px #38bdf8, 0 0 24px #38bdf8;
+    transform: scale(1.12);
+    color: #000;
     font-weight: bold;
-    z-index: 5;
+  }
+
+  .neuron.dreaming {
+    background: #c084fc;
+    border-color: #a855f7;
+    box-shadow: 0 0 12px #a855f7;
+    transform: scale(1.05);
+    color: #fff;
+  }
+
+  .neuron.potentiated {
+    border-color: #0ea5e9;
   }
 
   .neuron.refractory {
-    opacity: 0.3;
-    background: #05070a !important;
+    opacity: 0.35;
+    background: #0b0f17;
   }
 
   .stream {
-    height: 180px;
+    height: 190px;
     overflow-y: auto;
-    background: #090d15;
+    background: #0d121c;
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 8px;
-    font-size: 0.7rem;
+    padding: 10px;
+    font-size: 0.72rem;
     font-family: monospace;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
   }
 
   @media (min-width: 960px) {
@@ -263,142 +246,141 @@
     }
   }
 
-  .log-line { line-height: 1.35; }
+  .log-line {
+    word-break: break-all;
+    line-height: 1.4;
+  }
   .log-fire { color: #38bdf8; }
-  .log-inh { color: #f43f5e; }
-  .log-ltp { color: #34d399; }
-  .log-state { color: #fbbf24; }
-  .log-osc { color: #c084fc; font-style: italic; }
+  .log-chem { color: #f59e0b; }
+  .log-hebb { color: #10b981; }
+  .log-stress { color: #ef4444; }
+  .log-thought { color: #c084fc; font-style: italic; }
+  .log-sleep { color: #93c5fd; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Biophysical Cortex <span style="color: var(--excitatory);">v0.3</span></h1>
+  <h1>Digital Human Brain <span style="color: var(--accent);">v0.3</span></h1>
   <div class="status-cluster">
-    <div class="status" id="brain-osc">OSC: 10 Hz (ALPHA RHYTHM)</div>
-    <div class="status" id="brain-balance">E/I RATIO: 4.1:1</div>
+    <div class="status" id="brain-rhythm">EEG: ALPHA (10 HZ)</div>
+    <div class="status" id="brain-state">STATE: HOMEOSTASIS (AWAKE)</div>
   </div>
 </header>
 
 <div class="main-layout">
   <div class="panel">
-    <div class="panel-title">Lobe Topography</div>
-    <div class="region-legend">
-      <div class="legend-item"><div class="dot" style="background: var(--pfc)"></div> PFC (Nodes 0-8)</div>
-      <div class="legend-item"><div class="dot" style="background: var(--visual)"></div> Visual (9-17)</div>
-      <div class="legend-item"><div class="dot" style="background: var(--limbic)"></div> Limbic (18-26)</div>
-      <div class="legend-item"><div class="dot" style="background: var(--motor)"></div> Motor (27-35)</div>
-    </div>
-
-    <div class="panel-title">Biophysical Modulators</div>
+    <div class="panel-title">Neurochemical Levels</div>
     <div class="meter-group">
       <div>
-        <div class="meter-label"><span>Glutamate (Excitatory)</span><span id="glu-val">60%</span></div>
-        <div class="bar-container"><div id="glu-bar" class="bar-fill glu-bar" style="width: 60%"></div></div>
+        <div class="meter-label">
+          <span>Dopamine (Motivation)</span>
+          <span id="dopamine-val">50%</span>
+        </div>
+        <div class="bar-container"><div id="dopamine-bar" class="bar-fill dopamine-bar"></div></div>
       </div>
+
       <div>
-        <div class="meter-label"><span>GABA (Inhibitory Clamp)</span><span id="gaba-val">40%</span></div>
-        <div class="bar-container"><div id="gaba-bar" class="bar-fill gaba-bar" style="width: 40%"></div></div>
+        <div class="meter-label">
+          <span>Serotonin (Stability)</span>
+          <span id="serotonin-val">50%</span>
+        </div>
+        <div class="bar-container"><div id="serotonin-bar" class="bar-fill serotonin-bar"></div></div>
       </div>
+
       <div>
-        <div class="meter-label"><span>Dopamine (STDP / Plasticity)</span><span id="dopa-val">50%</span></div>
-        <div class="bar-container"><div id="dopa-bar" class="bar-fill dopa-bar" style="width: 50%"></div></div>
+        <div class="meter-label">
+          <span>Cortisol (Arousal / Alert)</span>
+          <span id="cortisol-val">15%</span>
+        </div>
+        <div class="bar-container"><div id="cortisol-bar" class="bar-fill cortisol-bar" style="width: 15%;"></div></div>
       </div>
+
       <div>
-        <div class="meter-label"><span>Adenosine (Somnolence)</span><span id="ade-val">15%</span></div>
-        <div class="bar-container"><div id="ade-bar" class="bar-fill ade-bar" style="width: 15%"></div></div>
+        <div class="meter-label">
+          <span>Adenosine (Tiredness)</span>
+          <span id="adenosine-val">10%</span>
+        </div>
+        <div class="bar-container"><div id="adenosine-bar" class="bar-fill adenosine-bar" style="width: 10%;"></div></div>
       </div>
     </div>
 
-    <div class="panel-title">Sensory Drive</div>
+    <div class="panel-title">Sensory Inputs</div>
     <div class="stimuli-grid">
-      <button onclick="injectInput('visual')">👁 Visual Flash</button>
-      <button onclick="injectInput('threat')">⚡ Limbic Threat</button>
-      <button onclick="injectInput('gaba_agonist')">🧪 GABA Booster</button>
-      <button onclick="injectInput('dopa_rush')">🔥 Dopamine Flush</button>
+      <button onclick="injectStimulus('caffeine')">☕ Caffeine</button>
+      <button onclick="injectStimulus('reward')">🏆 Dopamine Hit</button>
+      <button onclick="injectStimulus('stress')">⚠️ Stressor</button>
+      <button onclick="injectStimulus('force_sleep')">💤 Force Sleep</button>
     </div>
 
-    <div style="font-size: 0.68rem; color: var(--muted); margin-top: auto; line-height: 1.35;">
-      Dashed nodes are inhibitory GABAergic interneurons. Leaky Integrate-and-Fire (-70mV to -55mV threshold).
+    <div style="font-size: 0.72rem; color: var(--muted); margin-top: auto; line-height: 1.4;">
+      Nodes brighten as LTP strengthens their pathways. Unused circuits slowly prune away.
     </div>
   </div>
 
   <div class="cortex" id="cortex"></div>
 
   <div class="panel">
-    <div class="panel-title">Oscillatory Spike Train</div>
+    <div class="panel-title">Autonomous Stream of Consciousness</div>
     <div class="stream" id="log-box"></div>
   </div>
 </div>
 
 <script>
-  // Biophysical parameters
-  const V_REST = -70;       // resting membrane potential (mV)
-  const V_THRESH = -55;     // action potential threshold (mV)
-  const V_RESET = -85;      // hyperpolarization after spike (mV)
-  const DECAY_TAU = 0.88;   // leak constant back to rest
-
   const brain = {
-    glutamate: 0.60,
-    gaba: 0.40,
-    dopamine: 0.50,
-    adenosine: 0.15,
-    hz: 10
+    dopamine: 50,
+    serotonin: 50,
+    cortisol: 15,
+    adenosine: 10,
+    isAsleep: false,
+    spikeCountWindow: 0,
+    thoughtPatience: 0
   };
+
+  const thoughtsVocabulary = [
+    "replaying recent sensory imprint...",
+    "subconscious pattern matched across cluster",
+    "curiosity sparked: scanning active circuits",
+    "rumination: reinforcing habitual loop",
+    "daydreaming: spontaneous association linked",
+    "quiet focus: evaluating internal monologue",
+    "associative spike: contextual memory recalled",
+    "reinforcing heavily traversed pathway",
+    "idle mind-wandering across frontal circuits",
+    "synthesizing sensory inputs"
+  ];
+
+  const dreamVocabulary = [
+    "REM sleep: replay consolidation active...",
+    "dream synthesis: linking remote memory nodes",
+    "synaptic pruning: clearing noise from circuits",
+    "resetting receptor balance...",
+    "integrating daily experiences to long-term store"
+  ];
 
   const NUM_NEURONS = 36;
   const neurons = [];
   const cortexEl = document.getElementById('cortex');
   const logBox = document.getElementById('log-box');
 
-  function getLobeColor(id) {
-    if (id < 9) return 'var(--pfc)';
-    if (id < 18) return 'var(--visual)';
-    if (id < 27) return 'var(--limbic)';
-    return 'var(--motor)';
-  }
-
-  // Construct biologically grounded network
   for (let i = 0; i < NUM_NEURONS; i++) {
-    // Dale's principle: ~20% of neurons strictly inhibitory (GABAergic)
-    const isInhibitory = (i % 5 === 0);
-    const color = getLobeColor(i);
-
     const el = document.createElement('div');
-    el.className = `neuron ${isInhibitory ? 'inhibitory-type' : ''}`;
+    el.className = 'neuron';
     el.id = `neuron-${i}`;
-    el.style.color = isInhibitory ? 'var(--inhibitory)' : color;
-    el.innerHTML = `<span>${isInhibitory ? 'I' : 'E'}${i}</span><span class="mv-readout" id="mv-${i}">-70</span>`;
-    el.onclick = () => depolarizeNeuron(i, 25, true);
+    el.innerText = `N${i}`;
+    el.onclick = () => fireNeuron(i, true);
     cortexEl.appendChild(el);
-
-    // Anatomical synaptic connectivity (local clusters + sparse long range)
-    const synapses = [];
-    const targets = [
-      (i + 1) % NUM_NEURONS,
-      (i + 6) % NUM_NEURONS,
-      (i + NUM_NEURONS - 1) % NUM_NEURONS,
-      (i + 13) % NUM_NEURONS // long-range projection tract
-    ];
-
-    targets.forEach(t => {
-      synapses.push({
-        target: t,
-        weight: isInhibitory ? -(0.35 + Math.random() * 0.2) : (0.25 + Math.random() * 0.25),
-        lastFired: 0
-      });
-    });
 
     neurons.push({
       id: i,
       el: el,
-      mvEl: el.querySelector('.mv-readout'),
-      membranePotential: V_REST,
+      membranePotential: 0,
       refractory: false,
-      isInhibitory: isInhibitory,
-      color: color,
-      synapses: synapses
+      synapses: [
+        { target: (i + 1) % NUM_NEURONS, weight: 0.35 + Math.random() * 0.15 },
+        { target: (i + 6) % NUM_NEURONS, weight: 0.35 + Math.random() * 0.15 },
+        { target: (i + NUM_NEURONS - 1) % NUM_NEURONS, weight: 0.25 + Math.random() * 0.15 }
+      ]
     });
   }
 
@@ -408,135 +390,195 @@
     const timestamp = new Date().toISOString().substring(17, 23);
     entry.innerText = `[${timestamp}] ${msg}`;
     logBox.prepend(entry);
-    if (logBox.children.length > 50) logBox.removeChild(logBox.lastChild);
+    if (logBox.children.length > 50) {
+      logBox.removeChild(logBox.lastChild);
+    }
   }
 
-  function depolarizeNeuron(id, millivolts, manual = false) {
+  function fireNeuron(id, manual = false) {
     const n = neurons[id];
     if (n.refractory) return;
 
-    n.membranePotential += millivolts;
-    n.mvEl.innerText = Math.round(n.membranePotential);
-
-    if (manual) log(`Depolarization injected at ${n.isInhibitory ? 'I' : 'E'}${id} (+${millivolts}mV)`, 'fire');
-
-    // Threshold check (All-or-Nothing Spike)
-    if (n.membranePotential >= V_THRESH) {
-      fireActionPotential(id);
-    }
-  }
-
-  function fireActionPotential(id) {
-    const n = neurons[id];
     n.refractory = true;
-    n.membranePotential = V_RESET; // hyperpolarize
-    n.el.classList.add('firing');
-    n.mvEl.innerText = '+30';
+    brain.spikeCountWindow++;
+    n.el.classList.add(brain.isAsleep ? 'dreaming' : 'firing');
 
-    const now = performance.now();
+    if (manual) {
+      log(`Sensory impulse initiated at N${id}`, 'fire');
+      brain.cortisol = Math.min(100, brain.cortisol + 2);
+    }
 
-    // Propagate PSPs (Post-Synaptic Potentials)
+    // Hebbian learning rate proportional to dopamine
+    const learningRate = 0.04 * (brain.dopamine / 50);
+
     n.synapses.forEach(syn => {
       setTimeout(() => {
-        const target = neurons[syn.target];
-        if (!target.refractory) {
-          // Spike-Timing-Dependent Plasticity (STDP / Hebbian)
-          if (!n.isInhibitory && target.membranePotential > -62) {
-            syn.weight = Math.min(0.9, syn.weight + (0.04 * brain.dopamine));
-            log(`LTP: Synapse E${id} -> ${syn.target} strengthened (${syn.weight.toFixed(2)})`, 'ltp');
-          }
+        const targetNeuron = neurons[syn.target];
+        if (!targetNeuron.refractory) {
+          const sleepModifier = brain.isAsleep ? 0.65 : 1.0;
+          targetNeuron.membranePotential += syn.weight * (brain.cortisol > 60 ? 1.3 : 1.0) * sleepModifier;
 
-          if (n.isInhibitory) {
-            // Hyperpolarize downstream (IPSP)
-            const ipsp = Math.abs(syn.weight) * 22 * brain.gaba;
-            target.membranePotential = Math.max(-90, target.membranePotential - ipsp);
-            target.mvEl.innerText = Math.round(target.membranePotential);
-          } else {
-            // Depolarize downstream (EPSP)
-            const epsp = syn.weight * 26 * brain.glutamate;
-            depolarizeNeuron(syn.target, epsp);
+          if (targetNeuron.membranePotential >= 0.7) {
+            targetNeuron.membranePotential = 0;
+            syn.weight = Math.min(0.98, syn.weight + learningRate);
+            
+            // Visual cue for strengthened pathway
+            if (syn.weight > 0.6) n.el.classList.add('potentiated');
+            
+            fireNeuron(syn.target);
           }
         }
-      }, 50);
+      }, brain.isAsleep ? 110 : 65);
     });
 
-    // Refractory recovery
+    const recoveryTime = brain.isAsleep ? 220 : 160;
     setTimeout(() => {
-      n.el.classList.remove('firing');
+      n.el.classList.remove('firing', 'dreaming');
       n.el.classList.add('refractory');
-      n.mvEl.innerText = '-85';
       setTimeout(() => {
         n.refractory = false;
         n.el.classList.remove('refractory');
-        n.membranePotential = V_REST;
-        n.mvEl.innerText = '-70';
-      }, 160);
-    }, 90);
+      }, recoveryTime);
+    }, 110);
   }
 
-  // Sensory injection hooks
-  window.injectInput = function(type) {
-    if (type === 'visual') {
-      log('Input: Photopic retinal burst -> Occipital cluster', 'fire');
-      [9, 10, 11].forEach(node => depolarizeNeuron(node, 22));
-    } else if (type === 'threat') {
-      log('Input: Threat evaluation -> Amygdala overdrive', 'inh');
-      brain.glutamate = Math.min(1.0, brain.glutamate + 0.15);
-      [18, 19, 20].forEach(node => depolarizeNeuron(node, 26));
-    } else if (type === 'gaba_agonist') {
-      brain.gaba = Math.min(0.9, brain.gaba + 0.25);
-      log('Agonist: Elevated GABA conductance across circuit', 'state');
-    } else if (type === 'dopa_rush') {
-      brain.dopamine = Math.min(1.0, brain.dopamine + 0.35);
-      log('Neurochemical: High dopamine -> STDP rate amplified', 'ltp');
-      depolarizeNeuron(0, 20);
+  // Autonomous Engine
+  setInterval(() => {
+    // 1. Circadian Cycle
+    if (!brain.isAsleep) {
+      brain.adenosine += 0.35;
+      if (brain.adenosine >= 90) fallAsleep();
+    } else {
+      brain.adenosine -= 1.8;
+      if (brain.adenosine <= 8) wakeUp();
     }
-    updateBars();
+
+    // 2. Mind Wandering / Autonomous Spikes
+    brain.thoughtPatience++;
+    if (brain.thoughtPatience >= 3) {
+      brain.thoughtPatience = 0;
+      if (!brain.isAsleep) {
+        const starter = Math.floor(Math.random() * NUM_NEURONS);
+        fireNeuron(starter);
+
+        if (Math.random() < 0.65) {
+          const thought = thoughtsVocabulary[Math.floor(Math.random() * thoughtsVocabulary.length)];
+          log(`💭 Thought: "${thought}"`, 'thought');
+        }
+      } else {
+        if (Math.random() < 0.5) {
+          fireNeuron(Math.floor(Math.random() * NUM_NEURONS));
+          if (Math.random() < 0.4) {
+            const dream = dreamVocabulary[Math.floor(Math.random() * dreamVocabulary.length)];
+            log(`🌙 ${dream}`, 'sleep');
+          }
+        }
+      }
+    }
+
+    // 3. Synaptic Pruning (slow forgetting)
+    if (Math.random() < 0.25) {
+      neurons.forEach(n => {
+        let maxWeight = 0;
+        n.synapses.forEach(syn => {
+          if (syn.weight > 0.28) syn.weight -= 0.006;
+          if (syn.weight > maxWeight) maxWeight = syn.weight;
+        });
+        if (maxWeight < 0.55) n.el.classList.remove('potentiated');
+      });
+    }
+
+    // 4. Homeostatic baseline recovery
+    brain.dopamine += (50 - brain.dopamine) * 0.015;
+    brain.serotonin += (50 - brain.serotonin) * 0.015;
+    brain.cortisol += (15 - brain.cortisol) * 0.02;
+
+    updateUI();
+  }, 450);
+
+  function fallAsleep() {
+    brain.isAsleep = true;
+    brain.cortisol = Math.max(5, brain.cortisol - 20);
+    log('⚡ Circadian Shift: Brain entered Deep / REM Sleep cycle', 'sleep');
+  }
+
+  function wakeUp() {
+    brain.isAsleep = false;
+    brain.serotonin = Math.min(100, brain.serotonin + 15);
+    log('☀️ Circadian Shift: Awakening. Alertness restored.', 'chem');
+  }
+
+  window.injectStimulus = function(type) {
+    if (type === 'caffeine') {
+      brain.adenosine = Math.max(0, brain.adenosine - 35);
+      brain.dopamine = Math.min(100, brain.dopamine + 22);
+      brain.cortisol = Math.min(100, brain.cortisol + 12);
+      if (brain.isAsleep) wakeUp();
+      log('Stimulus: Caffeine ingested. Adenosine clearance blocked.', 'chem');
+      fireNeuron(Math.floor(Math.random() * NUM_NEURONS));
+    } else if (type === 'reward') {
+      brain.dopamine = Math.min(100, brain.dopamine + 35);
+      brain.serotonin = Math.min(100, brain.serotonin + 18);
+      brain.cortisol = Math.max(0, brain.cortisol - 15);
+      log('Stimulus: Goal achieved! Dopamine plasticity surged.', 'hebb');
+      for (let k = 0; k < 2; k++) fireNeuron(Math.floor(Math.random() * NUM_NEURONS));
+    } else if (type === 'stress') {
+      brain.cortisol = Math.min(100, brain.cortisol + 40);
+      brain.serotonin = Math.max(0, brain.serotonin - 25);
+      if (brain.isAsleep) wakeUp();
+      log('Stimulus: Threat detected! High cortisol arousal.', 'stress');
+      for (let k = 0; k < 4; k++) fireNeuron(Math.floor(Math.random() * NUM_NEURONS));
+    } else if (type === 'force_sleep') {
+      fallAsleep();
+    }
+    updateUI();
   };
 
-  function updateBars() {
-    document.getElementById('glu-val').innerText = `${Math.round(brain.glutamate * 100)}%`;
-    document.getElementById('glu-bar').style.width = `${brain.glutamate * 100}%`;
+  function updateUI() {
+    document.getElementById('dopamine-val').innerText = `${Math.round(brain.dopamine)}%`;
+    document.getElementById('dopamine-bar').style.width = `${brain.dopamine}%`;
 
-    document.getElementById('gaba-val').innerText = `${Math.round(brain.gaba * 100)}%`;
-    document.getElementById('gaba-bar').style.width = `${brain.gaba * 100}%`;
+    document.getElementById('serotonin-val').innerText = `${Math.round(brain.serotonin)}%`;
+    document.getElementById('serotonin-bar').style.width = `${brain.serotonin}%`;
 
-    document.getElementById('dopa-val').innerText = `${Math.round(brain.dopamine * 100)}%`;
-    document.getElementById('dopa-bar').style.width = `${brain.dopamine * 100}%`;
+    document.getElementById('cortisol-val').innerText = `${Math.round(brain.cortisol)}%`;
+    document.getElementById('cortisol-bar').style.width = `${brain.cortisol}%`;
 
-    document.getElementById('ade-val').innerText = `${Math.round(brain.adenosine * 100)}%`;
-    document.getElementById('ade-bar').style.width = `${brain.adenosine * 100}%`;
-  }
+    document.getElementById('adenosine-val').innerText = `${Math.round(brain.adenosine)}%`;
+    document.getElementById('adenosine-bar').style.width = `${brain.adenosine}%`;
 
-  // Biological loop (Leaky potential decay + neural oscillations)
-  setInterval(() => {
-    // 1. Leaky Membrane: All sub-threshold potentials decay to -70mV
-    neurons.forEach(n => {
-      if (!n.refractory && n.membranePotential !== V_REST) {
-        n.membranePotential = V_REST + (n.membranePotential - V_REST) * DECAY_TAU;
-        n.mvEl.innerText = Math.round(n.membranePotential);
-      }
-    });
+    const stateEl = document.getElementById('brain-state');
+    const rhythmEl = document.getElementById('brain-rhythm');
 
-    // 2. Pacemaker Oscillations (Thalamocortical rhythm)
-    if (Math.random() < 0.35) {
-      const pfcSeed = Math.floor(Math.random() * 9);
-      depolarizeNeuron(pfcSeed, 12);
-      if (Math.random() < 0.2) {
-        log(`Oscillation: Thalamic pacemaker synchronized cortex (${brain.hz} Hz)`, 'osc');
+    // Dynamic EEG based on real spike rate & chemical state
+    if (brain.isAsleep) {
+      stateEl.innerText = 'STATE: REM SLEEP';
+      stateEl.style.color = 'var(--adenosine)';
+      rhythmEl.innerText = 'EEG: DELTA (2 HZ)';
+      rhythmEl.style.color = '#c084fc';
+    } else {
+      if (brain.cortisol > 65 || brain.spikeCountWindow > 4) {
+        stateEl.innerText = 'STATE: HYPER-AROUSAL (FIGHT/FLIGHT)';
+        stateEl.style.color = 'var(--cortisol)';
+        rhythmEl.innerText = 'EEG: GAMMA (38 HZ)';
+        rhythmEl.style.color = 'var(--cortisol)';
+      } else if (brain.dopamine > 70) {
+        stateEl.innerText = 'STATE: FLOW / EXPLORATION';
+        stateEl.style.color = 'var(--dopamine)';
+        rhythmEl.innerText = 'EEG: BETA (20 HZ)';
+        rhythmEl.style.color = 'var(--dopamine)';
+      } else {
+        stateEl.innerText = 'STATE: HOMEOSTASIS (AWAKE)';
+        stateEl.style.color = 'var(--muted)';
+        rhythmEl.innerText = 'EEG: ALPHA (10 HZ)';
+        rhythmEl.style.color = 'var(--accent)';
       }
     }
+    brain.spikeCountWindow = 0;
+  }
 
-    // 3. Chemical baseline clearance
-    brain.glutamate += (0.60 - brain.glutamate) * 0.03;
-    brain.gaba += (0.40 - brain.gaba) * 0.03;
-    brain.dopamine += (0.50 - brain.dopamine) * 0.02;
-
-    updateBars();
-  }, 350);
-
-  updateBars();
-  log('Biophysical Lif-Network running. Dale principle active.');
+  updateUI();
+  log('Digital Human Brain initialized. Stream of consciousness active.', 'hebb');
 </script>
 
 </body>
