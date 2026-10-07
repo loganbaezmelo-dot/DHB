@@ -334,6 +334,7 @@
     adenosine: 10,
     isAsleep: false,
     spikeCountWindow: 0,
+    rollingSpikes: 0,
     thoughtPatience: 0
   };
 
@@ -408,7 +409,6 @@
       brain.cortisol = Math.min(100, brain.cortisol + 2);
     }
 
-    // Hebbian learning rate proportional to dopamine
     const learningRate = 0.04 * (brain.dopamine / 50);
 
     n.synapses.forEach(syn => {
@@ -422,7 +422,6 @@
             targetNeuron.membranePotential = 0;
             syn.weight = Math.min(0.98, syn.weight + learningRate);
             
-            // Visual cue for strengthened pathway
             if (syn.weight > 0.6) n.el.classList.add('potentiated');
             
             fireNeuron(syn.target);
@@ -453,7 +452,7 @@
       if (brain.adenosine <= 8) wakeUp();
     }
 
-    // 2. Mind Wandering / Autonomous Spikes
+    // 2. Mind Wandering
     brain.thoughtPatience++;
     if (brain.thoughtPatience >= 3) {
       brain.thoughtPatience = 0;
@@ -476,7 +475,7 @@
       }
     }
 
-    // 3. Synaptic Pruning (slow forgetting)
+    // 3. Synaptic Pruning
     if (Math.random() < 0.25) {
       neurons.forEach(n => {
         let maxWeight = 0;
@@ -488,7 +487,7 @@
       });
     }
 
-    // 4. Homeostatic baseline recovery
+    // 4. Baseline recovery
     brain.dopamine += (50 - brain.dopamine) * 0.015;
     brain.serotonin += (50 - brain.serotonin) * 0.015;
     brain.cortisol += (15 - brain.cortisol) * 0.02;
@@ -550,31 +549,31 @@
     const stateEl = document.getElementById('brain-state');
     const rhythmEl = document.getElementById('brain-rhythm');
 
-    // Dynamic EEG based on real spike rate & chemical state
+    // Smooth out firing velocity (exponential moving average)
+    brain.rollingSpikes = (brain.rollingSpikes * 0.7) + (brain.spikeCountWindow * 0.3);
+    brain.spikeCountWindow = 0;
+
     if (brain.isAsleep) {
       stateEl.innerText = 'STATE: REM SLEEP';
       stateEl.style.color = 'var(--adenosine)';
       rhythmEl.innerText = 'EEG: DELTA (2 HZ)';
       rhythmEl.style.color = '#c084fc';
+    } else if (brain.cortisol > 65 || brain.rollingSpikes > 4.5) {
+      stateEl.innerText = 'STATE: HIGH ALERT / PANIC';
+      stateEl.style.color = 'var(--cortisol)';
+      rhythmEl.innerText = 'EEG: GAMMA (38 HZ)';
+      rhythmEl.style.color = 'var(--cortisol)';
+    } else if (brain.dopamine > 65 || brain.rollingSpikes > 1.8) {
+      stateEl.innerText = 'STATE: ACTIVE COGNITION';
+      stateEl.style.color = 'var(--dopamine)';
+      rhythmEl.innerText = 'EEG: BETA (20 HZ)';
+      rhythmEl.style.color = 'var(--dopamine)';
     } else {
-      if (brain.cortisol > 65 || brain.spikeCountWindow > 4) {
-        stateEl.innerText = 'STATE: HYPER-AROUSAL (FIGHT/FLIGHT)';
-        stateEl.style.color = 'var(--cortisol)';
-        rhythmEl.innerText = 'EEG: GAMMA (38 HZ)';
-        rhythmEl.style.color = 'var(--cortisol)';
-      } else if (brain.dopamine > 70) {
-        stateEl.innerText = 'STATE: FLOW / EXPLORATION';
-        stateEl.style.color = 'var(--dopamine)';
-        rhythmEl.innerText = 'EEG: BETA (20 HZ)';
-        rhythmEl.style.color = 'var(--dopamine)';
-      } else {
-        stateEl.innerText = 'STATE: HOMEOSTASIS (AWAKE)';
-        stateEl.style.color = 'var(--muted)';
-        rhythmEl.innerText = 'EEG: ALPHA (10 HZ)';
-        rhythmEl.style.color = 'var(--accent)';
-      }
+      stateEl.innerText = 'STATE: HOMEOSTASIS (AWAKE)';
+      stateEl.style.color = 'var(--muted)';
+      rhythmEl.innerText = 'EEG: ALPHA (10 HZ)';
+      rhythmEl.style.color = 'var(--accent)';
     }
-    brain.spikeCountWindow = 0;
   }
 
   updateUI();
